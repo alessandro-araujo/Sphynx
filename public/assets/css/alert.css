@@ -1,0 +1,15 @@
+        /* Container para os alertas empilhados */
+        #alertContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;  /* Garante que os alertas fiquem acima de outros elementos */
+        }
+
+        /* Estilos para os alertas */
+        .alert {
+            max-width: 20vw;  /* Limita a largura do alert */
+            padding: 10px;  /* Torna o alert menor */
+            font-size: 14px;  /* Tamanho de fonte menor */
+            margin-bottom: 10px;  /* Espaçamento entre os alertas */
+        }

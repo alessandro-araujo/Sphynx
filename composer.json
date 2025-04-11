@@ -1,0 +1,25 @@
+{
+    "name": "aless/project-l5",
+    "description": "Teste L5 Networks",
+    "type": "project",
+    "require": {
+        "php": "7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "App/",
+            "core\\": "Core/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alessandro Araujo",
+            "email": "alessandro.v.b.araujo@gmail.com"
+        }
+    ],
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    }
+}

@@ -1,0 +1,23 @@
+# Use postgres/example user/password credentials
+# version: '3.9'
+
+services:
+  db:
+    image: mysql:5.7  # Alterando para MySQL 5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  # Volume para persistência dos dados
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+volumes:
+  mysql_data:
+    driver: local
