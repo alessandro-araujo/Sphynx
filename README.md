@@ -14,15 +14,21 @@ Este projeto é uma API construída em PHP, utilizando o Composer para gerenciam
 
 ```
 php-api
-├── src
-│   ├── Controllers
-│   │   └── ExampleController.php
-│   ├── Models
-│   │   └── ExampleModel.php
-│   ├── Routes
+├── src/
+│   ├── app/
+│   │   ├── Controllers/
+│   │   │   └── Controller.php
+│   │   ├── Model/
+│   │   │   └── Model.php
+│   │   ├── Middleware/
+│   │   │   └── Middleware.php
+│   │   ├── Helpers/
+│   │   │   └── helper.php
+│   ├── core/  
 │   │   └── api.php
-│   └── Helpers
-│       └── helper.php
+│   └── public/
+│       ├── index.php
+│       └── style.css
 ├── vendor
 ├── composer.json
 ├── composer.lock
