@@ -1,12 +1,16 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';
-
 use Core\Router;
+use App\Controllers\Login;
 use App\Controllers\ExampleController;
+use App\Middleware\AuthMiddleware;
 
 
-Router::get('/exampleController', [ExampleController::class, 'index']);
+
+Router::post('/login', [Login::class, 'login']);
+Router::get('/exampleController', [ExampleController::class, 'index'], AuthMiddleware::class);
+# Router::get('/user', [UserController::class, 'getUser'], AuthMiddleware::class);
+
 
 Router::get('/exampleController/{id}', [ExampleController::class, 'show']);
 Router::post('/exampleController', [ExampleController::class, 'store']);
