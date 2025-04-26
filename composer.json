@@ -1,18 +1,18 @@
 {
     "name": "vendor/api",
-    "description": "A simple PHP API project",
-    "type": "project",
+    "description": "Framework for building RESTful APIs",
+    "type": "api-rest-full",
     "require": {
-        "php": "^7.4 || ^8.0",
-        "slim/slim": "^4.0",
-        "slim/psr7": "^1.0",
-        "usmanhalalit/pixie": "^2.0"
+        "php": "^8.3",
+        "usmanhalalit/pixie": "^2.0",
+        "firebase/php-jwt": "^6.11"
     },
     "autoload": {
         "psr-4": {
             "App\\": "src/App/",
             "Core\\": "src/Core/",
-            "Router\\": "src/Routes/"
+            "Router\\": "src/Routes/",
+            "Database\\": "src/Databases/"
         }
     },
     "require-dev": {
