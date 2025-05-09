@@ -16,6 +16,14 @@
       // Código
   }
   ```
+* **Tipagem Obrigatória:** Todas as funções, métodos e parâmetros DEVEM utilizar tipagem estática.
+
+```php
+function soma(int $a, int $b): int {
+    return $a + $b;
+}
+```
+
 **Condições simples DEVEM ser escritas em uma única linha!**
 
 

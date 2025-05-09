@@ -22,7 +22,7 @@ Router::get('/example', function() {
     echo json_encode(["message" => "Hello, World!"]);
 });
 
-Router::get('/example/{name}', function($name) {
+Router::get('/example/{name}', function(string $name)  {
     echo json_encode(["message" => "Hello, $name"]);
 });
 
