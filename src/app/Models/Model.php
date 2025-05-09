@@ -1,32 +1,25 @@
 <?php
 
 namespace App\Models;
+use App\Interfaces\Database;
+use Exception;
 
-use Pixie\Connection;
-
-class Model
+/**
+ * Classe Model
+ * Classe base para modelos de dados
+ */
+abstract class Model
 {
-    protected $db;
-
-    public function __construct()
+    protected Database $builder;
+    
+    /**
+     * Construtor da classe Model
+     */
+    public function __construct(Database $database)
     {
-        error_reporting(E_ALL & ~E_DEPRECATED);
-        $config = [
-            'driver'    => $_ENV['DB_DRIVER'],
-            'host'      => $_ENV['DB_HOST'],
-            'database'  => $_ENV['DB_DATABASE'],
-            'username'  => $_ENV['DB_USERNAME'],
-            'password'  => $_ENV['DB_PASSWORD'],
-            'charset'   => $_ENV['DB_CHARSET'],
-            'collation' => $_ENV['DB_COLLATION'],
-            'prefix'    => $_ENV['DB_PREFIX'] ?? ''
-        ];
-
-        try {
-            $connection = new Connection($config['driver'], $config, 'QB');
-            $this->db = $connection->getQueryBuilder();
-        } catch (\Exception $e) {
-            die("Erro ao conectar ao banco de dados: " . $e->getMessage());
+        $this->builder = $database;
+        if (empty($this->table)) {
+            throw new Exception("Error Table Undefined", 1);
         }
     }
 }
