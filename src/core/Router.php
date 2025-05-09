@@ -25,9 +25,9 @@ class Router
         self::getInstance()->addRoute('GET', $path, $handler, $middleware);
     }
 
-    public static function post(string $path, array|callable $handler, ?string $middleware = null): void
+    public static function post(string $path, array|callable $handler, ?string $middleware = null, array $args = []): void
     {
-        self::getInstance()->addRoute('POST', $path, $handler, $middleware);
+        self::getInstance()->addRoute('POST', $path, $handler, $middleware, $args);
     }
 
     public static function put(string $path, array|callable $handler, ?string $middleware = null): void
@@ -40,11 +40,12 @@ class Router
         self::getInstance()->addRoute('DELETE', $path, $handler, $middleware);
     }
 
-    private function addRoute(string $method, string $path, array|callable $handler, ?string $middleware = null): void
+    private function addRoute(string $method, string $path, array|callable $handler, ?string $middleware = null, array $args = []): void
     {
         $this->routes[$method][$path] = [
             'handler' => $handler,
-            'middleware' => $middleware
+            'middleware' => $middleware,
+            'args' => $args
         ];
     }
 
@@ -65,17 +66,17 @@ class Router
 
                 $handler = $routeData['handler'];
                 $middleware = $routeData['middleware'] ?? null;
-
+                $args = $routeData['args'] ?? [];
                 $inputData = ($method === 'POST' || $method === 'PUT')
                     ? json_decode(file_get_contents('php://input'), true)
                     : [];
 
-                $callable = function () use ($handler, $inputData, $matches) {
+                $callable = function () use ($handler, $inputData, $matches, $args) {
                     if (is_callable($handler)) {
-                        call_user_func_array($handler, [$inputData, ...$matches]);
+                        call_user_func_array($handler, [$inputData, ...$matches, $args]);
                     } else {
                         [$controller, $action] = $handler;
-                        call_user_func_array([new $controller(), $action], [$inputData, ...$matches]);
+                        call_user_func_array([new $controller(), $action], [$inputData, ...$matches, $args]);
                     }
                 };
 

@@ -1,6 +1,7 @@
+.gitignore
+.env
 /public/storage/uploads/
 /public/storage/logs/app.log
 /vendor
 /.vscode
 composer.lock
-.env
