@@ -18,8 +18,8 @@ abstract class Model
     public function __construct(Database $database)
     {
         $this->builder = $database;
-        if (empty($this->table)) {
-            throw new Exception("Error Table Undefined", 1);
-        }
+        // if (empty($this->table)) {
+        //     throw new Exception("Error Table Undefined", 1);
+        // }
     }
 }
