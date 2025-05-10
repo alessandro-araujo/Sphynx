@@ -12,12 +12,12 @@ interface Database {
     /**
      * @param string $config_search
      * @param int $config_param (default: PDO::FETCH_ASSOC)
-     * @return array<int, array<string, mixed>> The result set as an associative array
+     * @return array{status: 'success', result: array<int, array<string, mixed>>} | array{status: 'error', message: string}
      */
     public function select(string $config_search = 'fetchAll', int $config_param = PDO::FETCH_ASSOC): array;
 
     /**
-     * @param  array<int, array<string, mixed>> $columns
+     * @param array<int, string> $columns
      * @return self
      */
     public function columns(array $columns): self;
