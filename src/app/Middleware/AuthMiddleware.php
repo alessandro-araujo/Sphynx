@@ -16,7 +16,6 @@ class AuthMiddleware {
         $headers = getallheaders();
         $authHeader = $headers['Authorization'];
 
-        # if (empty($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {}
         if (empty($authHeader) || !is_string($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
              http_response_code(401);
             echo json_encode(['error' => 'Token não informado']);

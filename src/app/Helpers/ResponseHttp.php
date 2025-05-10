@@ -6,7 +6,6 @@ namespace App\Helpers;
 class ResponseHttp {
     /**
      * Método para retornar uma resposta JSON com código de status HTTP.
-     *
      * @param array<string> $data O conteúdo da resposta.
      * @param int $statusCode O código de status HTTP.
      * @return void

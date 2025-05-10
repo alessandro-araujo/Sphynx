@@ -13,8 +13,7 @@ abstract class Model {
     /**
      * Construtor da classe Model
      */
-    public function __construct(Database $database)
-    {
+    public function __construct(Database $database) {
         $this->builder = $database;
     }
 }
