@@ -8,8 +8,7 @@ use PDO;
  * Interface Database
  * Define a estrutura básica para classes de acesso a banco de dados
  */
-interface Database
-{
+interface Database {
     /**
      * @param string $config_search
      * @param int $config_param (default: PDO::FETCH_ASSOC)

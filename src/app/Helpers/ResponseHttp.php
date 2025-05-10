@@ -3,8 +3,7 @@
 namespace App\Helpers;
 
 
-class ResponseHttp
-{
+class ResponseHttp {
     /**
      * Método para retornar uma resposta JSON com código de status HTTP.
      *
@@ -12,8 +11,7 @@ class ResponseHttp
      * @param int $statusCode O código de status HTTP.
      * @return void
      */
-    public function response(array $data, int $statusCode): void
-    {
+    public function response(array $data, int $statusCode): void {
         http_response_code($statusCode);
         header('Content-Type: application/json');
         echo json_encode($data);

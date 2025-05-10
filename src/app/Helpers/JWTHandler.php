@@ -16,16 +16,21 @@ class JWTHandler
         if (empty($_ENV['JWT_SECRET_KEY'])) {
             throw new Exception('A chave secreta do JWT não foi definida.');
         }
+        // @phpstan-ignore assign.propertyType
         $this->secret = $_ENV['JWT_SECRET_KEY'];
     }
 
+    // @phpstan-ignore missingType.iterableValue
     public function gerarToken(array $payload): string
     {
+        $time =  $_ENV['JWT_TTL'] ?? 3600;
         $payload['iat'] = time();
-        $payload['exp'] = time() + $_ENV['JWT_TTL'] ?? 3600; // Tempo de expiração padrão de 1 hora
+        // @phpstan-ignore binaryOp.invalid
+        $payload['exp'] = time() + $time;
         return JWT::encode($payload, $this->secret, $this->algoritmo);
     }
 
+    // @phpstan-ignore missingType.iterableValue
     public function validarToken(string $jwt): array
     {
         try {

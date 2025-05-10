@@ -2,14 +2,12 @@
 
 namespace App\Models;
 use App\Interfaces\Database;
-use Exception;
 
 /**
  * Classe Model
  * Classe base para modelos de dados
  */
-abstract class Model
-{
+abstract class Model {
     protected Database $builder;
     
     /**
@@ -18,8 +16,5 @@ abstract class Model
     public function __construct(Database $database)
     {
         $this->builder = $database;
-        // if (empty($this->table)) {
-        //     throw new Exception("Error Table Undefined", 1);
-        // }
     }
 }
