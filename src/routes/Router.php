@@ -6,7 +6,7 @@ use App\Controllers\ExampleController;
 use App\Middleware\AuthMiddleware;
 use Database\InlineSQL;
 
-$args = [new InlineSQL()];
+$args = ['connection' => new InlineSQL()];
 Router::post('/login', [Login::class, 'login'], null, $args);
 Router::get('/exampleController', [ExampleController::class, 'index'], AuthMiddleware::class);
 

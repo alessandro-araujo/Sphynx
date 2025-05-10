@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Helpers;
 
-class Controller
+
+class ResponseHttp
 {
     /**
      * Método para retornar uma resposta JSON com código de status HTTP.
@@ -11,7 +12,7 @@ class Controller
      * @param int $statusCode O código de status HTTP.
      * @return void
      */
-    protected function response(array $data, int $statusCode): void
+    public function response(array $data, int $statusCode): void
     {
         http_response_code($statusCode);
         header('Content-Type: application/json');
