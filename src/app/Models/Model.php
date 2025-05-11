@@ -4,14 +4,14 @@ namespace App\Models;
 use App\Interfaces\Database;
 
 /**
- * Classe Model
- * Classe base para modelos de dados
+ * Class Model
+ * Base class for data models
  */
 abstract class Model {
     protected Database $builder;
     
     /**
-     * Construtor da classe Model
+     * Model class constructor
      */
     public function __construct(Database $database) {
         $this->builder = $database;

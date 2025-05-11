@@ -6,7 +6,7 @@ use PDO;
 
 /**
  * Interface Database
- * Define a estrutura básica para classes de acesso a banco de dados
+ * Defines the basic structure for database access classes
  */
 interface Database {
     /**
@@ -23,7 +23,6 @@ interface Database {
     public function columns(array $columns): self;
 
     /** PARAMETROS DE CONFIGURAÇÃO
-     * @param string $field
      * @param string $field
      * @param string $value
      * @param string $operator

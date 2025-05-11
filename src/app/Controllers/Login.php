@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Helpers\JWTHandler;
 use Database\InlineSQL;
 use Exception;
+
 class Login extends Controller {
     /**
     * @param array{email: string, password: string} $request

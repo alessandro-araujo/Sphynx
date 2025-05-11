@@ -9,7 +9,7 @@ use Exception;
 class JWTHandler
 {
     private string $secret;
-    private string $algoritmo = 'HS256';  
+    private string $algorithm = 'HS256';
 
     public function __construct()
     {
@@ -27,14 +27,14 @@ class JWTHandler
         $payload['iat'] = time();
         // @phpstan-ignore binaryOp.invalid
         $payload['exp'] = time() + $time;
-        return JWT::encode($payload, $this->secret, $this->algoritmo);
+        return JWT::encode($payload, $this->secret, $this->algorithm);
     }
 
     // @phpstan-ignore missingType.iterableValue
     public function validarToken(string $jwt): array
     {
         try {
-            $decoded = JWT::decode($jwt, new Key($this->secret, $this->algoritmo));
+            $decoded = JWT::decode($jwt, new Key($this->secret, $this->algorithm));
             return (array) $decoded;
         } catch (Exception $e) {
             throw new Exception('Token inválido ou expirado: ' . $e->getMessage());
