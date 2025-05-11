@@ -3,32 +3,32 @@
 namespace Database;
 
 use App\Interfaces\Database;
+use App\Helpers\ResponseHttp;
 use PDO;
 use PDOException;
 use Exception;
 
-class InlineSQL implements Database
-{
+class InlineSQL implements Database {
     protected string $table = '';
     protected string $columns = '*';
-    protected array $all_conditions = [];
-    protected array $joins = [];
-    protected array $params = [];
+    /** @var array<int, array{type: string, table: string, condition: string}> */ protected array $joins = [];
+    /** @var array<int, array{type: string, condition: string}> */ protected array $all_conditions = [];
+    /** @var array<string> */ protected array $params = [];
 
+    protected ResponseHttp $ResponseHttp;
     protected PDO $pdo;
 
-    public function __construct()
-    {
+    public function __construct() {
+        $this->ResponseHttp = new ResponseHttp();
         $this->connect();
     }
 
-    private function connect(): void
-    {
-        $host = $_ENV['DB_HOST'];
-        $port = $_ENV['DB_PORT'];
-        $dbname = $_ENV['DB_DATABASE'];
-        $user = $_ENV['DB_USERNAME'];
-        $password = $_ENV['DB_PASSWORD'];
+    private function connect(): void {
+        /** @var string $host */     $host = $_ENV['DB_HOST'];
+        /** @var string $port */     $port = $_ENV['DB_PORT'];
+        /** @var string $dbname */   $dbname = $_ENV['DB_DATABASE'];
+        /** @var string $user */     $user = $_ENV['DB_USERNAME'];
+        /** @var string $password */ $password = $_ENV['DB_PASSWORD'];
 
         $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
 
@@ -40,26 +40,23 @@ class InlineSQL implements Database
 
         try {
             $this->pdo = new PDO($dsn, $user, $password, $options);
-        } catch (PDOException $e) {
-            if ($_ENV['APP_ENV'] === 'production') throw new Exception("Erro ao conectar ao banco de dados.");
-            throw new Exception("Erro ao conectar ao banco de dados: " . $e->getMessage());
+        } catch (PDOException $error) {
+            if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) $this->ResponseHttp->response(["error" => $error->getCode() .' '. $error->getMessage()], 500);
+            $this->ResponseHttp->response(["error" => 'Erro ao conectar ao banco de dados'], 500);                     
         }
     }
 
-    public function table(string $table): self
-    {
+    public function table(string $table): self {
         $this->table = trim($table);
         return $this;
     }
 
-    public function columns(array $columns): self
-    {
+    public function columns(array $columns): self {
         $this->columns = implode(", ", array_map('trim', $columns));
         return $this;
     }
 
-    public function where(string $field, $value, string $operator = '='): self
-    {
+    public function where(string $field, string $value, string $operator = '='): self {
         $this->all_conditions[] = [
             "type" => "AND",
             "condition" => $this->prepareCondition($field, $value, $operator),
@@ -67,8 +64,7 @@ class InlineSQL implements Database
         return $this;
     }
 
-    public function orWhere(string $field, $value, string $operator = '='): self
-    {
+    public function orWhere(string $field, string $value, string $operator = '='): self {
         $this->all_conditions[] = [
             "type" => "OR",
             "condition" => $this->prepareCondition($field, $value, $operator),
@@ -76,8 +72,7 @@ class InlineSQL implements Database
         return $this;
     }
 
-    public function join(string $table, string $firstField, string $secondField, string $joinType = 'INNER'): self
-    {
+    public function join(string $table, string $firstField, string $secondField, string $joinType = 'INNER'): self {
         $joinType = strtoupper($joinType);
         $validTypes = ['INNER', 'LEFT', 'RIGHT', 'FULL', 'CROSS'];
 
@@ -92,46 +87,44 @@ class InlineSQL implements Database
         return $this;
     }
 
-    protected function prepareCondition(string $field, $value, string $operator): string
+    protected function prepareCondition(string $field, string $value, string $operator): string
     {
         $paramKey = ':param_' . count($this->params);
         $this->params[$paramKey] = $value;
         return "{$field} {$operator} {$paramKey}";
     }
 
-    public function select(string $config_search = 'fetchAll', string $config_param = PDO::FETCH_ASSOC): array
-    {
-        # var_dump($config);die; // Debugging line to check the config array
-        if (empty($this->table)) {
-            throw new Exception("Tabela não definida.");
-        }
+    public function select(string $config_search = 'fetchAll', int $config_param = PDO::FETCH_ASSOC): array {
+        if (empty($this->table)) return ['status' => 'error', 'message' => 'Tabela não definida'];
 
-        $joinClause = '';
+        $join_clause = '';
         foreach ($this->joins as $join) {
-            $joinClause .= " {$join['type']} JOIN {$join['table']} ON {$join['condition']}";
+            $join_clause .= " {$join['type']} JOIN {$join['table']} ON {$join['condition']}";
         }
 
-        $whereClause = '';
+        $where_clause = '';
         foreach ($this->all_conditions as $index => $condition) {
             $prefix = $index === 0 ? 'WHERE' : $condition['type'];
-            $whereClause .= " {$prefix} {$condition['condition']}";
+            $where_clause .= " {$prefix} {$condition['condition']}";
         }
 
-        $sql = "SELECT {$this->columns} FROM {$this->table}{$joinClause}{$whereClause}";
+        $sql = "SELECT {$this->columns} FROM {$this->table}{$join_clause}{$where_clause}";
 
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($this->params);
-            return $stmt->$config_search($config_param) ?: [];
-        } catch (PDOException $e) {
-            return ['error' => true, 'message' => 'Falha ao buscar dados: ' . $e->getMessage()];
+            /** @var array<int, array<string, mixed>> $result */
+            $result = (array) $stmt->$config_search($config_param);
+            return ['status' => 'success', 'result' => $result];
+        } catch (PDOException $error) {
+            if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) return ['status' => 'error', 'message' => $error->getMessage()];
+            return ['status' => 'error', 'message' => 'Falha ao buscar dados:'];
         } finally {
             $this->reset();
         }
     }
 
-    protected function reset(): void
-    {
+    protected function reset(): void {
         $this->table = '';
         $this->columns = '*';
         $this->all_conditions = [];

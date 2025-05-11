@@ -2,17 +2,16 @@
 
 namespace App\Controllers;
 
-class Controller
-{
+use JetBrains\PhpStorm\NoReturn;
+class Controller {
     /**
-     * Método para retornar uma resposta JSON com código de status HTTP.
+     * Method to return a JSON response with HTTP status code.
      *
-     * @param array $data O conteúdo da resposta.
-     * @param int $statusCode O código de status HTTP.
+     * @param array<string> $data The content of the response.
+     * @param int $statusCode The HTTP status code.
      * @return void
      */
-    protected function response(array $data, int $statusCode): void
-    {
+    public function response(array $data, int $statusCode): void {
         http_response_code($statusCode);
         header('Content-Type: application/json');
         echo json_encode($data);

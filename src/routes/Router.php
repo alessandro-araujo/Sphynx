@@ -2,21 +2,19 @@
 
 use Core\Router;
 use App\Controllers\Login;
-use App\Controllers\ExampleController;
+// use App\Controllers\ExampleController;
 use App\Middleware\AuthMiddleware;
 use Database\InlineSQL;
 
-$args = [new InlineSQL()];
+$args = ['connection' => new InlineSQL()];
 Router::post('/login', [Login::class, 'login'], null, $args);
-Router::get('/exampleController', [ExampleController::class, 'index'], AuthMiddleware::class);
+// Router::get('/exampleController', [ExampleController::class, 'index'], AuthMiddleware::class);
 
-# Router::get('/user', [UserController::class, 'getUser'], AuthMiddleware::class);
-
-
-Router::get('/exampleController/{id}', [ExampleController::class, 'show']);
-Router::post('/exampleController', [ExampleController::class, 'store']);
-Router::delete('/exampleController/{id}', [ExampleController::class, 'destroy']);
-Router::put('/exampleController/{id}', [ExampleController::class, 'update']);
+// Router::get('/user', [UserController::class, 'getUser'], AuthMiddleware::class);
+// Router::get('/exampleController/{id}', [ExampleController::class, 'show']);
+// Router::post('/exampleController', [ExampleController::class, 'store']);
+// Router::delete('/exampleController/{id}', [ExampleController::class, 'destroy']);
+// Router::put('/exampleController/{id}', [ExampleController::class, 'update']);
 
 Router::get('/example', function() {
     echo json_encode(["message" => "Hello, World!"]);
