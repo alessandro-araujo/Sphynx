@@ -1,0 +1,8 @@
+.gitignore
+.env
+/public/storage/uploads/
+/public/storage/logs/app.log
+/vendor
+/.vscode
+/.idea
+composer.lock
