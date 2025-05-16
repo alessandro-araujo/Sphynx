@@ -216,8 +216,7 @@ $contagem = array_map(fn($usuario) => [
 ```json
 {
   "status": "success",
-  "message": "Operação realizada com sucesso",
-  "data": {}
+  "result": {}
 }
 ```
 
@@ -226,9 +225,7 @@ $contagem = array_map(fn($usuario) => [
 ```json
 {
   "status": "error",
-  "message": "Descrição do erro",
-  "code": 400,
-  "errors": ["Campo X é obrigatório"]
+  "message": "Descrição do erro"
 }
 ```
 
