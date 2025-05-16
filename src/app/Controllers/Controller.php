@@ -3,7 +3,13 @@
 namespace App\Controllers;
 
 use JetBrains\PhpStorm\NoReturn;
+use App\Language\Lang;
 class Controller {
+    protected Lang $lang;
+    public function __construct() {
+        $this->lang = new Lang();
+    }
+
     /**
      * Method to return a JSON response with HTTP status code.
      *
@@ -11,7 +17,7 @@ class Controller {
      * @param int $statusCode The HTTP status code.
      * @return void
      */
-    public function response(array $data, int $statusCode): void {
+    #[NoReturn] public function response(array $data, int $statusCode): void {
         http_response_code($statusCode);
         header('Content-Type: application/json');
         echo json_encode($data);
