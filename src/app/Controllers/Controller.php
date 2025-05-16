@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use JetBrains\PhpStorm\NoReturn;
 use App\Language\Lang;
 class Controller {
     protected Lang $lang;
@@ -17,10 +16,10 @@ class Controller {
      * @param int $statusCode The HTTP status code.
      * @return void
      */
-    #[NoReturn] public function response(array $data, int $statusCode): void {
+    public function response(array $data, int $statusCode): void {
         http_response_code($statusCode);
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
         echo json_encode($data);
-        exit;
+        return;
     }
 }
