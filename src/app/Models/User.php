@@ -13,6 +13,6 @@ class User extends Model {
         $this->builder->table($this->table);
         $this->builder->where('email', $email);
         /** @var array<int, array{id: int, email: string, username: string, password: string}> */
-        return (array) $this->builder->select('fetch');
+        return $this->builder->select('fetch');
     }
 }
