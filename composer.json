@@ -5,7 +5,8 @@
     "require": {
         "php": "^8.3",
         "usmanhalalit/pixie": "^2.0",
-        "firebase/php-jwt": "^6.11"
+        "firebase/php-jwt": "^6.11",
+        "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {
