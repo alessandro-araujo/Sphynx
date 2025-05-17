@@ -2,13 +2,15 @@
 
 use Core\Router;
 use App\Controllers\Login;
-// use App\Controllers\ExampleController;
+use App\Controllers\User;
 use App\Middleware\AuthMiddleware;
 use Database\InlineSQL;
 
 $args = ['connection' => new InlineSQL()];
 Router::post('/login', [Login::class, 'login'], null, $args);
-// Router::get('/exampleController', [ExampleController::class, 'index'], AuthMiddleware::class);
+Router::post('/register', [Login::class, 'register'], null, $args);
+
+Router::get('/user', [User::class, 'index'], AuthMiddleware::class, $args);
 
 // Router::get('/user', [UserController::class, 'getUser'], AuthMiddleware::class);
 // Router::get('/exampleController/{id}', [ExampleController::class, 'show']);

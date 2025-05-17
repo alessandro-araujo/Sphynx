@@ -30,8 +30,8 @@ class InlineSQL implements Database {
         /** @var string $user */     $user = $_ENV['DB_USERNAME'];
         /** @var string $password */ $password = $_ENV['DB_PASSWORD'];
 
-        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
-
+        # $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -76,7 +76,8 @@ class InlineSQL implements Database {
         $joinType = strtoupper($joinType);
         $validTypes = ['INNER', 'LEFT', 'RIGHT', 'FULL', 'CROSS'];
 
-        if (!in_array($joinType, $validTypes)) throw new Exception("JOIN inválido: $joinType");
+        if (!in_array($joinType, $validTypes))  throw new Exception("JOIN inválido: $joinType");
+        # if (!in_array($joinType, $validTypes)) return ['status' => 'error', 'message' => 'JOIN inválido {$joinType}'];
 
         $this->joins[] = [
             'type' => $joinType,
@@ -118,13 +119,36 @@ class InlineSQL implements Database {
             return ['status' => 'success', 'result' => $result];
         } catch (PDOException $error) {
             if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) return ['status' => 'error', 'message' => $error->getMessage()];
-            return ['status' => 'error', 'message' => 'Falha ao buscar dados:'];
+            return ['status' => 'error', 'message' => 'Failed to fetch data:'];
         } finally {
             $this->reset();
         }
     }
 
-    protected function reset(): void {
+    public function insert(array $register_data): array {
+        /** @var array<string, string> $register_data */
+        $columns = implode(', ', array_keys($register_data));
+        $values = array_map(function ($value) {
+            return "'" . addslashes($value) . "'";
+        }, array_values($register_data));
+
+        $values = implode(', ', $values);
+        $sql = "INSERT INTO {$this->table} ({$columns}, created_at) VALUES ({$values}, now()) RETURNING id;";
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return ['status' => 'success', 'result' => $result];
+        } catch (PDOException $error) {
+            if ($_ENV['APP_ENV'] === 'development' && $_ENV['APP_DEBUG'] === 'True') {
+                return ['status' => 'error', 'message' => $error->getMessage()];
+            }
+            return ['status' => 'error', 'message' => 'Failed to insert data.'];
+        } finally {
+            $this->reset();
+        }
+    }
+        protected function reset(): void {
         $this->table = '';
         $this->columns = '*';
         $this->all_conditions = [];

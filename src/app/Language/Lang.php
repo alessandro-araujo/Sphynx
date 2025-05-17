@@ -16,7 +16,7 @@ class Lang {
             ],
             'success' => [
                 'created' => '{resource} criado com sucesso.',
-                'successful' => '{resource} bem-sucedido!.'
+                'successful' => '{resource} bem-sucedido!'
             ],
             'default' => [
                 'not_found' => 'Mensagem não encontrada.',
@@ -44,6 +44,7 @@ class Lang {
         'pt-BR' => [
             'user' => 'Usuário',
             'product' => 'Produto',
+            'register' => 'Registro',
             'data' => 'Dado',
             'login' => 'Login',
             'email_password' => 'E-mail ou Senha'
@@ -51,6 +52,7 @@ class Lang {
         'en-US' => [
             'user' => 'User',
             'login' => 'Login',
+            'register' => 'Register',
             'product' => 'Product',
             'data' => 'Data',
             'email_password' => 'E-mail ou Password'

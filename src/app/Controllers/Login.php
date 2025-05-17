@@ -6,13 +6,14 @@ use App\Models\User;
 use App\Helpers\JWTHandler;
 use Database\InlineSQL;
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 
 class Login extends Controller {
     /**
-    * @param array{email: string, password: string} $request
-    * @param array{connection: InlineSQL} $args
-    * @return void
-    */
+     * @param array{email: string, password: string} $request
+     * @param array{connection: InlineSQL} $args
+     * @return void
+     */
     public function login(array $request, array $args): void {
         if (empty($request['email']) || empty($request['password'])) $this->response(
             $this->lang->get('error.not_provided.email_password'), 400);
@@ -56,5 +57,34 @@ class Login extends Controller {
             $this->response(['message' => $this->lang->get('error.authentication.login')['error'], 'token' => 'false'],
                 401);
         }
+    }
+
+    /**
+     * @param array{email: string, password: string, username: string} $request
+     * @param array{connection: InlineSQL} $args
+     * @return void
+     */
+    #[NoReturn] public function register(array $request, array $args): void {
+        if (empty($request['email']) || empty($request['password']) || empty($request['username'])) $this->response(
+            $this->lang->get('error.not_provided.email_password_username'), 400);
+
+        $user_model = new User($args['connection']);
+        /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
+        $user = $user_model->register($request['username'], $request['email'],  password_hash($request['password'], PASSWORD_DEFAULT));
+        $user_status = $user['status'];
+
+        if ($user_status === 'error') {
+            assert(isset($user['message']));
+            $this->response(["error" => $user['message'] . " de Login"], 401);
+        }
+
+        $this->response(['message' => $this->lang->get('success.successful.register')['success']],
+            201);
+    }
+    /**
+     * @return void
+     */
+    public function logout(): void {
+
     }
 }

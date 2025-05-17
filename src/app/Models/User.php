@@ -15,4 +15,16 @@ class User extends Model {
         /** @var array<int, array{id: int, email: string, username: string, password: string}> */
         return $this->builder->select('fetch');
     }
+
+    /**
+     * @param string $username
+     * @param string $email
+     * @param string $password
+     * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
+     */
+    public function register(string $username, string $email, string $password): array {
+        $this->builder->table($this->table);
+        /** @var array{status: 'success', result: mixed} | array{status: 'error', message: string} */
+        return $this->builder->insert(['username' => $username, 'email' => $email, 'password' => $password]);
+    }
 }
