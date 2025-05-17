@@ -6,7 +6,8 @@
         "php": "^8.3",
         "usmanhalalit/pixie": "^2.0",
         "firebase/php-jwt": "^6.11",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "jetbrains/phpstorm-attributes": "^1.2"
     },
     "autoload": {
         "psr-4": {

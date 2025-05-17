@@ -128,6 +128,6 @@ class Router {
 
     private function sendNotFound(): void {
         http_response_code(404);
-        echo json_encode(["error" => "Rota não encontrada"]);
+        echo json_encode(["error" => "Route not found"]);
     }
 }

@@ -27,8 +27,10 @@ class Login extends Controller {
             assert(isset($user['message']));
             $this->response(["error" => $user['message'] . " de Login"], 401);
         }
-        if (isset($user['result'])) $login = $user['result']; assert(isset($login));
-        unset($user);
+
+        if (empty($user['result']['password'])) $this->response(
+            $this->lang->get('error.invalid.email_password'), 401); else $login = $user['result'];
+        assert(isset($login));
 
         /** @var array{id: int, email: string, username: string, password: string} $login */
         if (!password_verify($request['password'], $login['password'])) $this->response(
