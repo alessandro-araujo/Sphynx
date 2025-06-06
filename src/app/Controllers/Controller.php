@@ -12,7 +12,7 @@ class Controller {
 
     /**
      * Method to return a JSON response with HTTP status code.
-     * @param array<string> $data The content of the response.
+     * @param array<mixed> $data The content of the response.
      * @param int $statusCode The HTTP status code.
      * @return void
      */
