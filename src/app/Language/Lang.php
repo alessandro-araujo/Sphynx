@@ -11,12 +11,18 @@ class Lang {
             'error' => [
                 'not_found' => '{resource} não encontrado.',
                 'not_provided' => '{resource} não fornecido.',
+                'not_provided_s' => '{resource} não fornecidos.',
                 'invalid' => '{resource} inválidos.',
-                'authentication' => 'Erro na autenticação'
+                'authentication' => 'Erro na autenticação',
+                'not_allowed' => '{resource} não permitido',
+                'not_allowed_s' => '{resource} não permitidos',
             ],
             'success' => [
                 'created' => '{resource} criado com sucesso.',
                 'successful' => '{resource} bem-sucedido!'
+            ],
+            'message' => [
+                'not_found' => '{resource} não encontrado.',
             ],
             'default' => [
                 'not_found' => 'Mensagem não encontrada.',
@@ -26,12 +32,18 @@ class Lang {
             'error' => [
                 'not_found' => '{resource} not found.',
                 'not_provided' => '{resource} not provided.',
+                'not_provided_s' => '{resource} not provided(s).',
                 'invalid' => '{resource} invalid.',
-                'authentication' => 'Authentication error'
+                'authentication' => 'Authentication error',
+                'not_allowed' => '{resource} not allowed',
+                'not_allowed_s' => "{resource} not allowed(s)",
             ],
             'success' => [
                 'created' => '{resource} successfully created.',
                 'successful' => '{resource} successfully!.'
+            ],
+            'message' => [
+                'not_found' => '{resource} not found(s).',
             ],
             'default' => [
                 'not_found' => 'Message not found.',
@@ -43,19 +55,25 @@ class Lang {
     protected array $resources = [
         'pt-BR' => [
             'user' => 'Usuário',
+            'parameters' => 'Parâmetros',
             'product' => 'Produto',
             'register' => 'Registro',
             'data' => 'Dado',
             'login' => 'Login',
-            'email_password' => 'E-mail ou Senha'
+            'email_password' => 'E-mail ou Senha',
+            'username_password' => 'Usuário ou Senha',
+            'email_password_username' => 'E-mail, Senha ou Usuário'
         ],
         'en-US' => [
             'user' => 'User',
             'login' => 'Login',
             'register' => 'Register',
+            'parameters' => 'Parameters',
             'product' => 'Product',
             'data' => 'Data',
-            'email_password' => 'E-mail ou Password'
+            'email_password' => 'E-mail or Password',
+            'username_password' => 'User or Password',
+            'email_password_username' => 'E-mail, Password or Username'
         ],
     ];
 
