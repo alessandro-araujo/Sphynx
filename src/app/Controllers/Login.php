@@ -10,32 +10,34 @@ use JetBrains\PhpStorm\NoReturn;
 
 class Login extends Controller {
     /**
-     * @param array{email: string, password: string} $request
+     * @param array{username: string, password: string} $request
      * @param array{connection: InlineSQL} $args
      * @return void
      */
     public function login(array $request, array $args): void {
-        if (empty($request['email']) || empty($request['password'])) $this->response(
-            $this->lang->get('error.not_provided.email_password'), 400);
+
+
+        if (empty($request['username']) || empty($request['password'])) $this->response(
+            $this->lang->get('error.not_provided_s.username_password'), 400);
 
         $user_model = new User($args['connection']);
         /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
         
-        $user = $user_model->login($request['email']);
-        $user_status = $user['status'];
+        $user = $user_model->login($request['username']);
 
-        if ($user_status === 'error') {
+        if ($user['status'] === 'error') {
             assert(isset($user['message']));
+            #TODO Fix custom sql return message
             $this->response(["error" => $user['message'] . " de Login"], 401);
         }
 
         if (empty($user['result']['password'])) $this->response(
-            $this->lang->get('error.invalid.email_password'), 401); else $login = $user['result'];
+            $this->lang->get('error.invalid.username_password'), 401); else $login = $user['result'];
         assert(isset($login));
 
         /** @var array{id: int, email: string, username: string, password: string} $login */
         if (!password_verify($request['password'], $login['password'])) $this->response(
-            $this->lang->get('error.invalid.email_password'), 401);
+            $this->lang->get('error.invalid.username_password'), 401);
 
         unset($request);
 
@@ -66,15 +68,16 @@ class Login extends Controller {
      */
     #[NoReturn] public function register(array $request, array $args): void {
         if (empty($request['email']) || empty($request['password']) || empty($request['username'])) $this->response(
-            $this->lang->get('error.not_provided.email_password_username'), 400);
+            $this->lang->get('error.not_provided_s.email_password_username'), 400);
 
         $user_model = new User($args['connection']);
         /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
-        $user = $user_model->register($request['username'], $request['email'],  password_hash($request['password'], PASSWORD_DEFAULT));
-        $user_status = $user['status'];
+        $user = $user_model->register($request['username'], $request['email'], password_hash($request['password'],
+            PASSWORD_DEFAULT));
 
-        if ($user_status === 'error') {
+        if ($user['status'] === 'error') {
             assert(isset($user['message']));
+            #TODO Fix custom sql return message
             $this->response(["error" => $user['message'] . " de Login"], 401);
         }
 
@@ -84,7 +87,5 @@ class Login extends Controller {
     /**
      * @return void
      */
-    public function logout(): void {
-
-    }
+    //    public function logout(): void {}
 }

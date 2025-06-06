@@ -8,16 +8,21 @@ use Exception;
 class AuthMiddleware {
 
     /**
-     * Método para verificar o token JWT no cabeçalho Authorization.
-     * @param callable $next O próximo manipulador a ser chamado.
+     * Method to verify the JWT token in the Authorization header.
+     * @param callable $next The next handler to be called.
      * @return mixed
      */
     public function handle(callable $next) {
         $headers = getallheaders();
+        if (empty($headers['Authorization'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Token não informado']);
+            exit;
+        }
         $authHeader = $headers['Authorization'];
 
-        if (empty($authHeader) || !is_string($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
-             http_response_code(401);
+        if (!is_string($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
+            http_response_code(401);
             echo json_encode(['error' => 'Token não informado']);
             exit;
         }
