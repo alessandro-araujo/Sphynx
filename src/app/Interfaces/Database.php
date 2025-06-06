@@ -17,10 +17,15 @@ interface Database {
     public function select(string $config_search = 'fetchAll', int $config_param = PDO::FETCH_ASSOC): array;
 
     /**
-     * @param array{} $register_data
+     * @param array<string, mixed> $register_data
      * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
      */
     public function insert(array $register_data): array;
+
+    /**
+     * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
+     */
+    public function delete(): array;
 
     /**
      * @param array<int, string> $columns

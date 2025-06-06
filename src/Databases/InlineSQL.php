@@ -95,6 +95,34 @@ class InlineSQL implements Database {
         return "{$field} {$operator} {$paramKey}";
     }
 
+    public function delete(): array {
+
+        $where_clause = '';
+        foreach ($this->all_conditions as $index => $condition) {
+            $prefix = $index === 0 ? 'WHERE' : $condition['type'];
+            $where_clause .= " {$prefix} {$condition['condition']}";
+        }
+
+        $sql = "DELETE FROM {$this->table} {$where_clause}";
+        if ($_ENV['SQL_DEBUG'] === 'True') {
+            ob_start();
+            print_r($sql); print('');
+        }
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($this->params);
+            return ['status' => 'success', 'result' => 'OK'];
+        } catch (PDOException $error) {
+            if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) return ['status' => 'error', 'message' => $error->getMessage()];
+            return ['status' => 'error', 'message' => 'Failed to fetch data:'];
+        } finally {
+            $this->reset();
+        }
+
+
+    }
+
     public function select(string $config_search = 'fetchAll', int $config_param = PDO::FETCH_ASSOC): array {
         if (empty($this->table)) return ['status' => 'error', 'message' => 'Tabela não definida'];
 
@@ -110,6 +138,10 @@ class InlineSQL implements Database {
         }
 
         $sql = "SELECT {$this->columns} FROM {$this->table}{$join_clause}{$where_clause}";
+        if ($_ENV['SQL_DEBUG'] === 'True') {
+            ob_start();
+            print_r($sql); print('');
+        }
 
         try {
             $stmt = $this->pdo->prepare($sql);
