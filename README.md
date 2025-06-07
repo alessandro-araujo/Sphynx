@@ -6,6 +6,7 @@ docker stop $(docker ps -aq)
 docker rm $(docker ps -aq)
 docker volume rm $(docker volume ls -q)
 docker network rm $(docker network ls -q)
+ALTER SEQUENCE accounts_id_seq RESTART WITH 1;
 
 
 Este projeto é uma API construída em PHP, utilizando o Composer para gerenciamento de dependências. A API é projetada para gerenciar exemplos e fornece endpoints para interagir com os dados.
