@@ -23,7 +23,7 @@ services:
     depends_on:
       - app
 
-  db:
+  postgres:
     image: postgres
     restart: always
     shm_size: 128mb
@@ -34,14 +34,27 @@ services:
     ports:
       - "5432:5432"
 
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
   adminer:
     image: adminer
     restart: always
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - postgres
+      - mysql
 
 volumes:
   postgres_data:
+    driver: local
+  mysql_data:
     driver: local

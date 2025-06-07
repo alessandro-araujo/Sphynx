@@ -10,10 +10,14 @@ use Exception;
 
 class InlineSQL implements Database {
     protected string $table = '';
+    protected string $where_clause = '';
     protected string $columns = '*';
-    /** @var array<int, array{type: string, table: string, condition: string}> */ protected array $joins = [];
-    /** @var array<int, array{type: string, condition: string}> */ protected array $all_conditions = [];
-    /** @var array<string> */ protected array $params = [];
+    /** @var array<int, array{type: string, table: string, condition: string}> $joins */
+    protected array $joins = [];
+    /** @var array<int, array{type: string, condition: string}> $all_conditions */
+    protected array $all_conditions = [];
+    /** @var array<string> $params */
+    protected array $params = [];
 
     protected ResponseHttp $ResponseHttp;
     protected PDO $pdo;
@@ -30,16 +34,23 @@ class InlineSQL implements Database {
         /** @var string $user */     $user = $_ENV['DB_USERNAME'];
         /** @var string $password */ $password = $_ENV['DB_PASSWORD'];
 
-        # $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-        $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_TIMEOUT            => 10,
-        ];
+        // $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
+        // $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+        // $options = [
+        //    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        //    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        //    PDO::ATTR_TIMEOUT            => 10,
+        // ];
 
+        $dataSource = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+        // dd($dataSource);
         try {
-            $this->pdo = new PDO($dsn, $user, $password, $options);
+            $this->pdo = new PDO($dataSource, $user, $password);
+            $this->pdo->setAttribute(PDO::ATTR_TIMEOUT, 300);
+
+            // new PDO($dsn, $user, $password, $options);
+            // $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            // $this->pdo->setAttribute(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL);
         } catch (PDOException $error) {
             if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) $this->ResponseHttp->response(["error" => $error->getCode() .' '. $error->getMessage()], 500);
             $this->ResponseHttp->response(["error" => 'Erro ao conectar ao banco de dados'], 500);                     
@@ -88,15 +99,13 @@ class InlineSQL implements Database {
         return $this;
     }
 
-    protected function prepareCondition(string $field, string $value, string $operator): string
-    {
+    protected function prepareCondition(string $field, string $value, string $operator): string {
         $paramKey = ':param_' . count($this->params);
         $this->params[$paramKey] = $value;
         return "{$field} {$operator} {$paramKey}";
     }
 
     public function delete(): array {
-
         $where_clause = '';
         foreach ($this->all_conditions as $index => $condition) {
             $prefix = $index === 0 ? 'WHERE' : $condition['type'];
@@ -169,8 +178,12 @@ class InlineSQL implements Database {
             return "'" . addslashes($value) . "'";
         }, array_values($register_data));
 
+        $now = date('Y-m-d H:i:s');
+
         $values = implode(', ', $values);
-        $sql = "INSERT INTO {$this->table} ({$columns}, created_at) VALUES ({$values}, now()) RETURNING id;";
+        # RETURNING id postgre
+        # $lastId = $pdo->lastInsertId(); mysql
+        $sql = "INSERT INTO {$this->table} ({$columns}, created_at) VALUES ({$values}, '{$now}');";
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
@@ -185,11 +198,60 @@ class InlineSQL implements Database {
             $this->reset();
         }
     }
-        protected function reset(): void {
+
+    public function update(array $update_data): array {
+        if (empty($this->table)) {
+            return ['status' => 'error', 'message' => 'Table not defined'];
+        }
+        $set_parts = [];
+        foreach ($update_data as $column => $value) {
+            $set_parts[] = "$column = :set_$column";
+        }
+        $set_clause = implode(', ', $set_parts);
+
+        foreach ($this->all_conditions as $index => $condition) {
+            $prefix = $index === 0 ? 'WHERE' : $condition['type'];
+            $this->where_clause .= " {$prefix} {$condition['condition']}";
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("UPDATE {$this->table} SET {$set_clause} {$this->where_clause};");
+            foreach ($update_data as $column => $value) {
+                $stmt->bindValue(":set_$column", $value);
+            }
+            foreach ($this->params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $result = $stmt->rowCount();
+
+            if ($result > 0) {
+                $update_at = "updated_at = :set_updated_at";
+                $stmt_update_at = $this->pdo->prepare("UPDATE {$this->table} SET {$update_at} {$this->where_clause};");
+                $stmt_update_at->bindValue('set_updated_at', date('Y-m-d H:i:s'));
+                foreach ($this->params as $key => $value) {
+                    $stmt_update_at->bindValue($key, $value);
+                }
+                $stmt_update_at->execute();
+            }
+
+            return ['status' => 'success', 'result' => $stmt->rowCount()];
+        } catch (PDOException $error) {
+            if ($_ENV['APP_ENV'] === 'development' && $_ENV['APP_DEBUG'] === 'True') {
+                return ['status' => 'error', 'message' => $error->getMessage()];
+            }
+            return ['status' => 'error', 'message' => 'Error updating data. '];
+        } finally {
+            $this->reset();
+        }
+    }
+
+    protected function reset(): void {
         $this->table = '';
         $this->columns = '*';
         $this->all_conditions = [];
         $this->joins = [];
         $this->params = [];
+        $this->where_clause = '';
     }
 }
