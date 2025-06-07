@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Models\User as UserModel;
 use Database\InlineSQL;
 use JetBrains\PhpStorm\NoReturn;
+use Exception;
 
 class User extends Controller {
     /**
@@ -12,13 +13,12 @@ class User extends Controller {
      * @return void
      */
         #[NoReturn] public function index(array $request, array $args): void {
-
             if (!empty($request)) $this->response($this->lang->get('error.not_allowed_s.parameters'), 401);
 
             $user_model = new UserModel($args['connection']);
             /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, created_at: string}} $user */
             $user = $user_model->index();
-            #TODO check if the user was created successfully
+
             if (empty($user['result'])) $this->response(
                 $this->lang->get('error.invalid.email_password'), 401);
 
@@ -27,27 +27,42 @@ class User extends Controller {
         }
 
     /**
-     * @param array{} $request
+     * @param array<never, never> $request
      * @param string $id
      * @param array{connection: InlineSQL} $args
      * @return void
      */
     #[NoReturn] public function show(array $request, string $id, array $args): void {
-        if (empty($id)) $this->response(
-            $this->lang->get('error.not_provided.email_password'), 400);
+        try {
+            if (empty($id)) $this->response(
+                $this->lang->get('error.not_provided.email_password'), 400);
 
-        $user_model = new UserModel($args['connection']);
-        /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, created_at: string}} $user */
-        $user = $user_model->show($id);
+            if (!empty($request)) $this->response($this->lang->get('error.not_allowed_s.parameters'), 401);
 
-        #TODO check if the user was created successfully
-        if (isset($user['result'])) $this->response(
-            $this->lang->get('message.not_found.user'), 404);
+            $user_model = new UserModel($args['connection']);
+            /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, created_at: string}}  $user */
 
-        /** @var array{result: array{id: int, email: string, username: string, created_at: string}} $user */
-        $this->response(['result' => $user['result']], 200);
+            $user = $user_model->show($id);
+
+            if (empty($user['result'])) $this->response(
+                $this->lang->get('message.not_found.user'), 404);
+
+            if ($user['status'] === 'error') {
+                assert(isset($user['message']));
+                $this->response(["error" => $user['message']], 401);
+            }
+
+            /** @var array{result: array{id: int, email: string, username: string, created_at: string}} $user */
+            $this->response(['result' => $user['result']], 200);
+        } catch (Exception $error) {
+            $this->response([
+                'error' => $this->lang->get('error.type_error.parameters')['error'],
+                'message' => $error->getMessage(),
+                'file' => $error->getFile(),
+                'row' => $error->getLine()
+            ], 400);
+        }
     }
-
 
     /**
      * @param array{email: string, password: string, username: string} $request
@@ -75,7 +90,7 @@ class User extends Controller {
     }
 
     /**
-     * @param array{} $request
+     * @param array<never, never> $request
      * @param string $id
      * @param array{connection: InlineSQL} $args
      * @return void
@@ -83,12 +98,12 @@ class User extends Controller {
     #[NoReturn] public function delete(array $request, string $id, array $args): void {
         if (empty($id)) $this->response(
             $this->lang->get('error.not_provided.email_password'), 400);
+        if (!empty($request)) $this->response($this->lang->get('error.not_allowed_s.parameters'), 401);
 
         $user_model = new UserModel($args['connection']);
         /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, created_at: string}} $user */
         $user = $user_model->delete($id);
 
-        #TODO check if the user was created successfully
         if (isset($user['result'])) $this->response(
             $this->lang->get('message.not_found.user'), 404);
             

@@ -40,7 +40,6 @@ class User extends Model {
         return $this->builder->insert(['username' => $username, 'email' => $email, 'password' => $password]);
     }
 
-
     /**
      * @return array<int, array<string, mixed>> The result set as an associative array
      */

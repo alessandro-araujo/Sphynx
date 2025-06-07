@@ -17,7 +17,7 @@ class Login extends Controller {
      */
     public function login(array $request, array $args): void {
         try {
-            if (empty($request['username']) || empty($request['password'])) $this->response(
+            if ((empty($request['username'])) OR (empty($request['password']))) $this->response(
                 $this->lang->get('error.not_provided_s.username_password'), 400);
 
             $user_model = new User($args['connection']);
@@ -26,7 +26,6 @@ class Login extends Controller {
 
             if ($user['status'] === 'error') {
                 assert(isset($user['message']));
-                #TODO Fix custom sql return message
                 $this->response(["error" => $user['message'] . " de Login"], 401);
             }
 
@@ -84,15 +83,10 @@ class Login extends Controller {
 
         if ($user['status'] === 'error') {
             assert(isset($user['message']));
-            #TODO Fix custom sql return message
             $this->response(["error" => $user['message'] . " de Login"], 401);
         }
 
         $this->response(['message' => $this->lang->get('success.successful.register')['success']],
             201);
     }
-    /**
-     * @return void
-     */
-    //    public function logout(): void {}
 }
