@@ -28,6 +28,12 @@ interface Database {
     public function delete(): array;
 
     /**
+     * @param array<string, mixed> $update_data
+     * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
+     */
+    public function update(array $update_data): array;
+
+    /**
      * @param array<int, string> $columns
      * @return self
      */
