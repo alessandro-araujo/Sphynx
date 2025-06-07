@@ -110,5 +110,20 @@ class User extends Controller {
         /** @var array{result: array{id: int, email: string, username: string, created_at: string}} $user */
         $this->response(['result' => $user['result']], 200);
     }
-//    public function update() {}
+
+    /**
+     * @param array{email: string, password: string, username: string} $request
+     * @param string $id
+     * @param array{connection: InlineSQL} $args
+     * @return void
+     */
+    #[NoReturn] public function update(array $request, string $id, array $args): void {
+        $fields = array_filter($request, fn($parameters) => !empty($parameters));
+        if (empty($fields)) $this->response(
+            $this->lang->get('error.not_provided.email_password_username'), 400);
+
+        $user_model = new UserModel($args['connection']);
+        $user = $user_model->update($id, $request);
+        dd($user);
+    }
 }
