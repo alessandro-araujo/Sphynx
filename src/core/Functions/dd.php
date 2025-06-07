@@ -1,28 +1,28 @@
 <?php
 
-// function dd($array): void {
-//     print('<pre>');;
-//     print_r($array);
-//     print('</pre>');
-//     die;
-// }
-// function dd(...$args): void {
-//     echo '<pre>';
-//     foreach ($args as $arg) {
-//         print_r($arg);
-//     }
-//     echo '</pre>';
-//     die;
-// }
+use JetBrains\PhpStorm\NoReturn;
 
+#[NoReturn] function dd(mixed ...$vars): void {
+    $convert = function ($data) use (&$convert) {
+        if (is_object($data)) {
+            $encoded = json_decode((string) json_encode($data), true);
 
-// @phpstan-ignore missingType.iterableValue
-function dd(array ...$vars): void {
-    echo '<pre style="background:#222;color:#0f0;padding:10px;">';
-    foreach ($vars as $var) {
-        var_dump($var);
-        echo "\n";
-    }
-    echo '</pre>';
+            if (empty($encoded)) {
+                return [
+                    '__raw_dump' => explode("\n", rtrim(print_r($data, true)))
+                ];
+            }
+            return $convert($encoded);
+        }
+        if (is_array($data)) {
+            return array_map(function ($value) use ($convert) {
+                return $convert($value);
+            }, $data);
+        }
+        return $data;
+    };
+    $output = array_map($convert, $vars);
+    echo json_encode(['debug' => $output], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
+
