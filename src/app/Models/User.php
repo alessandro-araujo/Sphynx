@@ -73,4 +73,21 @@ class User extends Model {
         return $this->builder->delete();
     }
 
+    /**
+     * @param string $id
+     * @param array{email: string, password: string, username: string} $request
+     * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
+     */
+    public function update(string $id, array $request): array {
+        $this->builder->table($this->table);
+        $this->builder->where('id', $id);
+        $columns_allowed = array_flip(['username', 'email', 'password']);
+        $update = array_intersect_key($request, $columns_allowed);
+        array_walk($update, function (&$value, $column) {
+            if ($column === 'password') {
+                $value = password_hash($value, PASSWORD_DEFAULT);
+            }
+        });
+        return $this->builder->update($update);
+    }
 }
