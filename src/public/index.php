@@ -5,6 +5,8 @@ require __DIR__ . '/../core/Functions/logs.php';
 require __DIR__ . '/../core/Functions/dd.php';
 
 
+/** @var array<string, string> $_ENV */
+date_default_timezone_set($_ENV['APP_TIMEZONE']);
 
 # ini_set('display_errors', ($_ENV['APP_ENV'] === 'development' && $_ENV['APP_DEBUG'] === 'True') ? '1' : '0');
 ini_set('display_errors','1');
