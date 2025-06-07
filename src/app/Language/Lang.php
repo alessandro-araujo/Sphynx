@@ -16,6 +16,7 @@ class Lang {
                 'authentication' => 'Erro na autenticação',
                 'not_allowed' => '{resource} não permitido',
                 'not_allowed_s' => '{resource} não permitidos',
+                'type_error' => 'Erro no tipo do(s) {resource}',
             ],
             'success' => [
                 'created' => '{resource} criado com sucesso.',
@@ -37,6 +38,7 @@ class Lang {
                 'authentication' => 'Authentication error',
                 'not_allowed' => '{resource} not allowed',
                 'not_allowed_s' => "{resource} not allowed(s)",
+                'type_error' => 'Type error in received data {resource}',
             ],
             'success' => [
                 'created' => '{resource} successfully created.',
