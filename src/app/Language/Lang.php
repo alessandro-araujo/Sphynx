@@ -16,10 +16,11 @@ class Lang {
                 'authentication' => 'Erro na autenticação',
                 'not_allowed' => '{resource} não permitido',
                 'not_allowed_s' => '{resource} não permitidos',
-                'type_error' => 'Erro no tipo do(s) {resource}',
+                'type_error' => 'Erro no tipo do(s) {resource}'
             ],
             'success' => [
                 'created' => '{resource} criado com sucesso.',
+                'updated' => '{resource} foi atualizado com sucesso.',
                 'successful' => '{resource} bem-sucedido!'
             ],
             'message' => [
@@ -42,6 +43,7 @@ class Lang {
             ],
             'success' => [
                 'created' => '{resource} successfully created.',
+                'updated' => '{resource} has been updated successfully.',
                 'successful' => '{resource} successfully!.'
             ],
             'message' => [
