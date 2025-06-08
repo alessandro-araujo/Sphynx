@@ -2,12 +2,14 @@
 declare(strict_types=1);
 namespace App\Controllers;
 
-use App\Models\User;
+use App\Models\User as UserModel;
 use App\Helpers\JWTHandler;
 use Database\InlineSQL;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use TypeError;
+use App\DTO\User as UserObject;
+use App\Services\User as UserService;
 
 class Login extends Controller {
     /**
@@ -19,8 +21,7 @@ class Login extends Controller {
         try {
             if ((empty($request['username'])) OR (empty($request['password']))) $this->response(
                 $this->lang->get('error.not_provided_s.username_password'), 400);
-
-            $user_model = new User($args['connection']);
+            $user_model = new UserModel($args['connection']);
             /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
             $user = $user_model->login($request['username']);
 
@@ -73,13 +74,19 @@ class Login extends Controller {
      * @return void
      */
     #[NoReturn] public function register(array $request, array $args): void {
-        if (empty($request['email']) || empty($request['password']) || empty($request['username'])) $this->response(
+        if ((empty($request['email'])) OR (empty($request['password'])) OR (empty($request['username']))) $this->response(
             $this->lang->get('error.not_provided_s.email_password_username'), 400);
 
-        $user_model = new User($args['connection']);
+        $user_object = new UserObject (
+            $request['email'],
+            $request['password'],
+            $request['username']
+        );
+
+        $user_model = new UserModel($args['connection']);
+        $user_service = new UserService($user_model);
         /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
-        $user = $user_model->register($request['username'], $request['email'], password_hash($request['password'],
-            PASSWORD_DEFAULT));
+        $user = $user_service->register($user_object);
 
         if ($user['status'] === 'error') {
             assert(isset($user['message']));

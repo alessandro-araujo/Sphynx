@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models;
+use App\DTO\User as UserObject;
+use App\Mappers\User as UserMapper;
 
 class User extends Model {
     protected string $table = "accounts";
@@ -17,15 +19,14 @@ class User extends Model {
     }
 
     /**
-     * @param string $username
-     * @param string $email
-     * @param string $password
+     * @param UserObject $user_object
      * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
      */
-    public function register(string $username, string $email, string $password): array {
+    public function register(UserObject $user_object): array {
+        $insert = UserMapper::register($user_object);
         $this->builder->table($this->table);
         /** @var array{status: 'success', result: mixed} | array{status: 'error', message: string} */
-        return $this->builder->insert(['username' => $username, 'email' => $email, 'password' => $password]);
+        return $this->builder->insert($insert);
     }
 
     /**
