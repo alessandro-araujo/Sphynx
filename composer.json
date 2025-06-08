@@ -14,7 +14,7 @@
             "App\\": "src/app/",
             "Core\\": "src/core/",
             "Router\\": "src/routes/",
-            "Database\\": "src/Databases/"
+            "Database\\": "src/Database/"
         }
     },
     "require-dev": {
