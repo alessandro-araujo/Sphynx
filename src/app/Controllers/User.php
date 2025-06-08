@@ -124,6 +124,17 @@ class User extends Controller {
 
         $user_model = new UserModel($args['connection']);
         $user = $user_model->update($id, $request);
-        dd($user);
+        $user_status = $user['status'];
+
+        if ($user_status === 'error') {
+            assert(isset($user['message']));
+            $this->response(["error" => $user['message'] . " for update"], 401);
+        }
+
+        if ($user['status'] === 'success' && $user['result'] === 0) $this->response(
+            $this->lang->get('error.not_provided.email_password_username'), 204);
+
+        $this->response(['message' => $this->lang->get('success.updated.user')['success']],
+            201);
     }
 }
