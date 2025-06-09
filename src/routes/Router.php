@@ -6,7 +6,8 @@ use App\Controllers\User;
 use App\Middleware\AuthMiddleware;
 use Database\InlineSQL;
 
-$args = ['connection' => new InlineSQL()];
+$connection_database = new InlineSQL();
+$args = ['connection' => $connection_database];
 /** Routes Login */
 Router::post('/login', [Login::class, 'login'], null, $args);
 Router::post('/register', [Login::class, 'register'], null, $args);

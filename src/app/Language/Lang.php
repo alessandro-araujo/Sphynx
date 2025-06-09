@@ -16,7 +16,8 @@ class Lang {
                 'authentication' => 'Erro na autenticação',
                 'not_allowed' => '{resource} não permitido',
                 'not_allowed_s' => '{resource} não permitidos',
-                'type_error' => 'Erro no tipo do(s) {resource}'
+                'type_error' => 'Erro no tipo do(s) {resource}',
+                'insert_data' => 'Falha ao inserir dados {resource}',
             ],
             'success' => [
                 'created' => '{resource} criado com sucesso.',
@@ -40,6 +41,7 @@ class Lang {
                 'not_allowed' => '{resource} not allowed',
                 'not_allowed_s' => "{resource} not allowed(s)",
                 'type_error' => 'Type error in received data {resource}',
+                'insert_data' => 'Failed to insert data {resource}',
             ],
             'success' => [
                 'created' => '{resource} successfully created.',

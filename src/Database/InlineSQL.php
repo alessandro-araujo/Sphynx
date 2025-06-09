@@ -193,7 +193,7 @@ class InlineSQL implements Database {
             if ($_ENV['APP_ENV'] === 'development' && $_ENV['APP_DEBUG'] === 'True') {
                 return ['status' => 'error', 'message' => $error->getMessage()];
             }
-            return ['status' => 'error', 'message' => 'Failed to insert data.'];
+            return ['status' => 'error', 'message' => 'insert_data'];
         } finally {
             $this->reset();
         }

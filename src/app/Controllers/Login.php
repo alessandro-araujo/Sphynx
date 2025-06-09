@@ -3,13 +3,13 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\User as UserModel;
-use App\Helpers\JWTHandler;
+use App\Helpers\{JWTHandler, Request, Result};
+use App\Services\User as UserService;
+use App\Factory\User as UserFactory;
 use Database\InlineSQL;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use TypeError;
-use App\DTO\User as UserObject;
-use App\Services\User as UserService;
 
 class Login extends Controller {
     /**
@@ -74,23 +74,18 @@ class Login extends Controller {
      * @return void
      */
     #[NoReturn] public function register(array $request, array $args): void {
-        if ((empty($request['email'])) OR (empty($request['password'])) OR (empty($request['username']))) $this->response(
+        if (!Request::required($request, ['email', 'password', 'username'])) $this->response(
             $this->lang->get('error.not_provided_s.email_password_username'), 400);
 
-        $user_object = new UserObject (
-            $request['email'],
-            $request['password'],
-            $request['username']
-        );
-
+        $user_object = UserFactory::user($request);
         $user_model = new UserModel($args['connection']);
         $user_service = new UserService($user_model);
         /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
         $user = $user_service->register($user_object);
 
-        if ($user['status'] === 'error') {
+        if (!Result::status($user)) {
             assert(isset($user['message']));
-            $this->response(["error" => $user['message'] . " de Login"], 401);
+            $this->response($this->lang->get("error.{$user['message']}.login"), 400);
         }
 
         $this->response(['message' => $this->lang->get('success.successful.register')['success']],
