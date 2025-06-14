@@ -2,12 +2,11 @@
 declare(strict_types=1);
 namespace App\Controllers;
 
+use App\DTO\User\{UserRegister as UserRegisterDTO, UserAuth as UserAuthDTO};
+use App\Helpers\{Request, Result, JWT};
 use App\Models\User as UserModel;
-use App\Helpers\{JWTHandler, Request, Result};
 use App\Services\User as UserService;
-use App\Factory\User as UserFactory;
 use Database\InlineSQL;
-use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use TypeError;
 
@@ -19,45 +18,28 @@ class Login extends Controller {
      */
     public function login(array $request, array $args): void {
         try {
-            if ((empty($request['username'])) OR (empty($request['password']))) $this->response(
+            if (!Request::required($request, ['password', 'username'])) $this->response(
                 $this->lang->get('error.not_provided_s.username_password'), 400);
-            $user_model = new UserModel($args['connection']);
-            /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
-            $user = $user_model->login($request['username']);
 
-            if ($user['status'] === 'error') {
+            $user_object = UserAuthDTO::set($request);
+            $user_model = new UserModel($args['connection']);
+            $user_service = new UserService($user_model);
+
+            /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
+            $user = $user_service->login($user_object);
+
+            if (!Result::status($user)) {
                 assert(isset($user['message']));
-                $this->response(["error" => $user['message'] . " de Login"], 401);
+                $this->response($this->lang->get("error.{$user['message']}.user"), 401);
             }
 
-            if (empty($user['result']['password'])) $this->response(
-                $this->lang->get('error.invalid.username_password'), 401); else $login = $user['result'];
-            assert(isset($login));
-
-            /** @var array{id: int, email: string, username: string, password: string} $login */
-            if (!password_verify($request['password'], $login['password'])) $this->response(
+            assert(isset($user['result']));
+            if (!Result::password($user_object->password, $user['result']['password'])) $this->response(
                 $this->lang->get('error.invalid.username_password'), 401);
 
-            unset($request);
+            $this->response(['message' => $this->lang->get('success.successful.login')['success'],
+            'token' => JWT::create($user['result'])], 200);
 
-            $jwtHandler = new JWTHandler();
-            $payload = [
-                'sub' => $login['id'],
-                'email' => $login['email'],
-                'username' => $login['username']
-            ];
-
-            try {
-                $jwt = $jwtHandler->gerarToken($payload);
-                $this->response(['message' => $this->lang->get('success.successful.login')['success'], 'token' => $jwt],
-                    200);
-            } catch (Exception $error) {
-                if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) {
-                    $this->response(["error" => $error->getCode() .' '. $error->getMessage()], 401);
-                }
-                $this->response(['message' => $this->lang->get('error.authentication.login')['error'], 'token' => 'false'],
-                    401);
-            }
         } catch (TypeError $error) {
             $this->response([
                 'error' => $this->lang->get('error.type_error.parameters')['error'],
@@ -77,7 +59,7 @@ class Login extends Controller {
         if (!Request::required($request, ['email', 'password', 'username'])) $this->response(
             $this->lang->get('error.not_provided_s.email_password_username'), 400);
 
-        $user_object = UserFactory::user($request);
+        $user_object = UserRegisterDTO::set($request);
         $user_model = new UserModel($args['connection']);
         $user_service = new UserService($user_model);
         /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */

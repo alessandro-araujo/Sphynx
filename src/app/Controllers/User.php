@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace App\Controllers;
 use App\Models\User as UserModel;
 use Database\InlineSQL;
@@ -12,19 +12,19 @@ class User extends Controller {
      * @param array{connection: InlineSQL} $args
      * @return void
      */
-        #[NoReturn] public function index(array $request, array $args): void {
-            if (!empty($request)) $this->response($this->lang->get('error.not_allowed_s.parameters'), 401);
+    #[NoReturn] public function index(array $request, array $args): void {
+        if (!empty($request)) $this->response($this->lang->get('error.not_allowed_s.parameters'), 401);
 
-            $user_model = new UserModel($args['connection']);
-            /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, created_at: string}} $user */
-            $user = $user_model->index();
+        $user_model = new UserModel($args['connection']);
+        /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, created_at: string}} $user */
+        $user = $user_model->index();
 
-            if (empty($user['result'])) $this->response(
-                $this->lang->get('error.invalid.email_password'), 401);
+        if (empty($user['result'])) $this->response(
+            $this->lang->get('error.invalid.email_password'), 401);
 
-            /** @var array{result: array{id: int, email: string, username: string, created_at: string}} $user */
-            $this->response(['result' => $user['result']], 201);
-        }
+        /** @var array{result: array{id: int, email: string, username: string, created_at: string}} $user */
+        $this->response(['result' => $user['result']], 201);
+    }
 
     /**
      * @param array<never, never> $request
