@@ -1,29 +1,26 @@
 <?php
-
+declare(strict_types=1);
 namespace App\Models;
-use App\DTO\User as UserObject;
-use App\Mappers\User as UserMapper;
 
 class User extends Model {
     protected string $table = "accounts";
 
     /** 
-     * @param string $username
+     * @param array{username: string, password: string} $login
      * @return array<int, array<string, mixed>> The result set as an associative array
      */
-    public function login(string $username): array {
+    public function login(array $login): array {
         $this->builder->table($this->table);
-        $this->builder->where('username', $username);
+        $this->builder->where('username', $login['username']);
         /** @var array<int, array{id: int, email: string, username: string, password: string}> */
         return $this->builder->select('fetch');
     }
 
     /**
-     * @param UserObject $user_object
+     * @param array{email: string, password: string, username: string} $insert
      * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
      */
-    public function register(UserObject $user_object): array {
-        $insert = UserMapper::register($user_object);
+    public function register(array $insert): array {
         $this->builder->table($this->table);
         /** @var array{status: 'success', result: mixed} | array{status: 'error', message: string} */
         return $this->builder->insert($insert);

@@ -17,8 +17,7 @@ Router::get('/user', [User::class, 'index'], AuthMiddleware::class, $args);
 Router::get('/user/{id}', [User::class, 'show'], AuthMiddleware::class, $args);
 Router::delete('/user/{id}', [User::class, 'delete'], AuthMiddleware::class, $args);
 Router::put('/user/{id}', [User::class, 'update'], AuthMiddleware::class, $args);
-
-# Routes Statics
+/** Routes Statics */
 Router::get('/example', function() {
     echo json_encode(["message" => "Hello, World!"]);
 });

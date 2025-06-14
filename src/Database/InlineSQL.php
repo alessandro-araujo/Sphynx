@@ -157,15 +157,15 @@ class InlineSQL implements Database {
             $stmt->execute($this->params);
             /** @var array<int, array<string, mixed>> $result */
             $result = (array) $stmt->$config_search($config_param);
-
-            if(isset($result[0]) AND $result[0] === false) {
-                return ['status' => 'error', 'result' => false];
-            }
+            #TODO redo check
+//            if(isset($result[0]) AND $result[0] === false) {
+//                return ['status' => 'error', 'result' => false];
+//            }
 
             return ['status' => 'success', 'result' => $result];
         } catch (PDOException $error) {
             if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) return ['status' => 'error', 'message' => $error->getMessage()];
-            return ['status' => 'error', 'message' => 'Failed to fetch data:'];
+            return ['status' => 'error', 'message' => 'not_found'];
         } finally {
             $this->reset();
         }

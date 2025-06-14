@@ -93,7 +93,8 @@ class Lang {
      */
     public function get(string $message_key): array {
         $parts = explode('.', $message_key);
-
+        $message = str_replace(['error.', '.login'], '', $message_key);
+        if (count($parts) > 3) return [$parts[0] => $message];
         if (count($parts) < 2) return [$parts[0] => $this->getDefaultMessage()];
 
         $resourceKey = $parts[2] ?? null;
