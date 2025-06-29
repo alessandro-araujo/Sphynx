@@ -1,22 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace App\Controllers;
+namespace App\Helpers;
 
-use App\Language\Lang;
 use JetBrains\PhpStorm\NoReturn;
-class Controller {
-    protected Lang $lang;
-    public function __construct() {
-        $this->lang = new Lang();
-    }
 
+class Response {
     /**
      * Method to return a JSON response with HTTP status code.
-     * @param array<mixed> $data The content of the response.
+     * @param array<string, int|string> $data The content of the response.
      * @param int $status_code The HTTP status code.
      * @return void
      */
-    #[NoReturn] protected function response(array $data, int $status_code): void {
+    #[NoReturn] public function response(array $data, int $status_code): void {
         http_response_code($status_code);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($data);

@@ -8,46 +8,30 @@ use App\Models\User as UserModel;
 use App\Services\User as UserService;
 use Database\InlineSQL;
 use JetBrains\PhpStorm\NoReturn;
-use TypeError;
 
 class Login extends Controller {
+
     /**
      * @param array{username: string, password: string} $request
      * @param array{connection: InlineSQL} $args
      * @return void
      */
-    public function login(array $request, array $args): void {
-        try {
-            if (!Request::required($request, ['password', 'username'])) $this->response(
-                $this->lang->get('error.not_provided_s.username_password'), 400);
+    #[NoReturn] public function login(array $request, array $args): void {
+        Request::required($request, ['password', 'username'], 'username_password');
 
-            $user_object = UserAuthDTO::set($request);
-            $user_model = new UserModel($args['connection']);
-            $user_service = new UserService($user_model);
+        $user_object = UserAuthDTO::set($request);
+        $user_model = new UserModel($args['connection']);
+        $user_service = new UserService($user_model);
+        /** @var array{status: string, message?: string,
+         *     result?: array{id: int, email: string, username: string, password: string}} $user */
+        $user = $user_service->login($user_object);
 
-            /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
-            $user = $user_service->login($user_object);
+        Result::status($user, 'login', 401);
+        Result::password($user_object->password, $user);
 
-            if (!Result::status($user)) {
-                assert(isset($user['message']));
-                $this->response($this->lang->get("error.{$user['message']}.user"), 401);
-            }
-
-            assert(isset($user['result']));
-            if (!Result::password($user_object->password, $user['result']['password'])) $this->response(
-                $this->lang->get('error.invalid.username_password'), 401);
-
-            $this->response(['message' => $this->lang->get('success.successful.login')['success'],
+        assert(isset($user['result']));
+        $this->response(['status' => 200, 'message' => $this->lang->get('success.successful.login')['success'],
             'token' => JWT::create($user['result'])], 200);
-
-        } catch (TypeError $error) {
-            $this->response([
-                'error' => $this->lang->get('error.type_error.parameters')['error'],
-                'message' => $error->getMessage(),
-                'file' => $error->getFile(),
-                'row' => $error->getLine()
-            ], 400);
-        }
     }
 
     /**
@@ -56,21 +40,19 @@ class Login extends Controller {
      * @return void
      */
     #[NoReturn] public function register(array $request, array $args): void {
-        if (!Request::required($request, ['email', 'password', 'username'])) $this->response(
-            $this->lang->get('error.not_provided_s.email_password_username'), 400);
+        Request::required($request, ['email', 'password', 'username'], 'email_password_username');
 
         $user_object = UserRegisterDTO::set($request);
         $user_model = new UserModel($args['connection']);
         $user_service = new UserService($user_model);
-        /** @var array{status: string, message?: string, result?: array{id: int, email: string, username: string, password: string}} $user */
+        /** @var array{status: string, message?: string,
+         *     result?: array{id: int, email: string, username: string, password: string}} $user */
         $user = $user_service->register($user_object);
 
-        if (!Result::status($user)) {
-            assert(isset($user['message']));
-            $this->response($this->lang->get("error.{$user['message']}.login"), 400);
-        }
+        Result::status($user, 'login', 400);
 
-        $this->response(['message' => $this->lang->get('success.successful.register')['success']],
-            201);
+        assert(isset($user['result']));
+        $this->response(['status' => 201, 'message' => $this->lang->get('success.successful.register')['success'],
+            'token' => JWT::create($user['result'])], 201);
     }
 }

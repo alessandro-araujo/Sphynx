@@ -41,12 +41,14 @@ interface Database {
 
     /** PARAMETERS OF CONFIGURATION
      * @param string $field
-     * @param string $value
+     * @param string|int $value
      * @param string $operator
      * @return self
      */
-    public function where(string $field, string $value, string $operator = '='): self;
-    public function orWhere(string $field, string $value, string $operator = '='): self;
+    public function where(string $field, string|int $value, string $operator = '='): self;
+    public function orWhere(string $field, string|int $value, string $operator = '='): self;
+    /** @param boolean $self */
+    public function returnInsert(bool $self): self;
     public function table(string $table): self;
     public function join(string $table, string $firstField, string $secondField, string $joinType = 'INNER'): self;
 }

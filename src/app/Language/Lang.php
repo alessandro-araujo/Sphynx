@@ -13,11 +13,12 @@ class Lang {
                 'not_provided' => '{resource} não fornecido.',
                 'not_provided_s' => '{resource} não fornecidos.',
                 'invalid' => '{resource} inválidos.',
-                'authentication' => 'Erro na autenticação',
-                'not_allowed' => '{resource} não permitido',
-                'not_allowed_s' => '{resource} não permitidos',
-                'type_error' => 'Erro no tipo do(s) {resource}',
-                'insert_data' => 'Falha ao inserir dados {resource}',
+                'authentication' => 'Erro na autenticação.',
+                'not_allowed' => '{resource} não permitido.',
+                'not_allowed_s' => '{resource} não permitidos.',
+                'type_error' => 'Erro no tipo do(s) {resource}.',
+                'insert_data' => 'Falha ao inserir dados {resource}.',
+                'updated' => 'Falha ao atualizar dados de {resource}.',
             ],
             'success' => [
                 'created' => '{resource} criado com sucesso.',
@@ -42,6 +43,7 @@ class Lang {
                 'not_allowed_s' => "{resource} not allowed(s)",
                 'type_error' => 'Type error in received data {resource}',
                 'insert_data' => 'Failed to insert data {resource}',
+                'updated' => 'Failed to updated data {resource}.',
             ],
             'success' => [
                 'created' => '{resource} successfully created.',
@@ -60,18 +62,23 @@ class Lang {
     /** @var array<string, array<string, string>> $resources */
     protected array $resources = [
         'pt-BR' => [
+            'id' => 'ID',
             'user' => 'Usuário',
+            'users' => 'Usuários',
             'parameters' => 'Parâmetros',
             'product' => 'Produto',
             'register' => 'Registro',
             'data' => 'Dado',
             'login' => 'Login',
+            'updated' => 'Atualizado',
             'email_password' => 'E-mail ou Senha',
             'username_password' => 'Usuário ou Senha',
             'email_password_username' => 'E-mail, Senha ou Usuário'
         ],
         'en-US' => [
+            'id' => 'ID',
             'user' => 'User',
+            'users' => "User's",
             'login' => 'Login',
             'register' => 'Register',
             'parameters' => 'Parameters',

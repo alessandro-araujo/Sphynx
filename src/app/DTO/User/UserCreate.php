@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace App\DTO\User;
 
-final class UserRegister {
+final class UserCreate {
     public function __construct(
         public string $email,
         public string $username,
@@ -11,9 +11,9 @@ final class UserRegister {
 
     /**
      * @param array{email: string, username: string, password: string} $request
-     * @return UserRegister
+     * @return UserCreate
      */
-    public static function set(array $request): UserRegister {
+    public static function set(array $request): UserCreate {
         return new self (
             email: $request['email'],
             username: $request['username'],

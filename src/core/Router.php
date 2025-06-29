@@ -1,8 +1,13 @@
 <?php
-
+declare(strict_types=1);
 namespace Core;
+use App\Language\Lang;
+use TypeError;
 
 class Router {
+    /** @var Lang $lang */
+    private Lang $lang;
+
     private static ?Router $instance = null;
      /**
       * @var array<string, array<string, array{handler: callable|array{0: class-string, 1: string}, middleware?: string|null, args?: array<string|int, mixed>}>>
@@ -11,6 +16,7 @@ class Router {
 
     private function __construct() {
         register_shutdown_function([$this, 'handleRequest']);
+        $this->lang = new Lang();
     }
 
     public static function getInstance(): Router {
@@ -60,6 +66,17 @@ class Router {
      * @param array<string|int, mixed> $args
      * @return void
      */
+    public static function patch(string $path, array|callable $handler, ?string $middleware = null, array $args = []): void {
+        self::getInstance()->addRoute('PATCH', $path, $handler, $middleware, $args);
+    }
+
+    /**
+     * @param string $path
+     * @param callable|array{0: class-string, 1: string} $handler
+     * @param string|null $middleware
+     * @param array<string|int, mixed> $args
+     * @return void
+     */
     public static function delete(string $path, array|callable $handler, ?string $middleware = null, array $args = []): void {
         self::getInstance()->addRoute('DELETE', $path, $handler, $middleware, $args);
     }
@@ -91,26 +108,64 @@ class Router {
         }
 
         foreach ($this->routes[$method] as $route => $route_data) {
-            $pattern = preg_replace('/\{([a-zA-Z0-9_]+)}/', '([^/]+)', rtrim($route, '/') . '/*');
+            $pattern = preg_replace('/\{([a-zA-Z0-9_]+)}/', '([^/]+)', rtrim($route, '/'));
             if (preg_match("#^$pattern$#", rtrim($uri, '/'), $matches)) {
                 array_shift($matches);
 
                 $handler = $route_data['handler'];
                 $middleware = $route_data['middleware'] ?? null;
                 $args = $route_data['args'] ?? [];
-                $inputData = ($method === 'POST' || $method === 'PUT')
-                    ? json_decode(file_get_contents('php://input') ?: '', true)
-                    : [];
 
-                $callable = function () use ($handler, $inputData, $matches, $args) {
-                    if (is_callable($handler)) {
-                        call_user_func_array($handler, [$inputData, ...$matches, $args]);
-                    } else {
-                        [$controller, $action] = $handler;
-                        /** @phpstan-ignore-next-line */
-                        call_user_func_array([new $controller(), $action], [$inputData, ...$matches, $args]);
+                $types_input = ['POST', 'PUT', 'PATCH'];
+                $inputData = [];
+                if (in_array(strtoupper($method), $types_input)) {
+                    $inputData = json_decode(file_get_contents('php://input') ?: '', true);
+                }
+
+                $callable = function () use ($method, $handler, $inputData, $matches, $args) {
+                    $params = [...$matches, $args];
+
+                    if (in_array(strtoupper($method), ['POST', 'PUT', 'PATCH'])) {
+                        array_unshift($params, $inputData);
+                        if (empty($params[0])) {
+                            http_response_code(400);
+                            echo json_encode([
+                                "status" => 400,
+                                "message" => $this->lang->get('error.not_provided_s.parameters')['error']
+                            ]);
+                            exit();
+                        }
                     }
+
+                    try {
+                        if (is_callable($handler)) {
+                            call_user_func_array($handler, $params);
+                        } else {
+                            [$controller, $action] = $handler;
+                            /** @phpstan-ignore-next-line */
+                            call_user_func_array([new $controller(), $action], $params);
+                        }
+                    } catch (TypeError $error) {
+                        http_response_code(400);
+                        echo json_encode([
+                            'error' => $this->lang->get('error.type_error.parameters')['error'],
+                            'message' => $error->getMessage(),
+                            'file' => $error->getFile(),
+                            'row' => $error->getLine()
+                        ]);
+                    }
+//                    catch (Throwable $error) {
+//                        http_response_code(500);
+//                        echo json_encode([
+//                            'error' => $this->lang->get('error.type_error.parameters')['error'],
+//                            'message' => $error->getMessage(),
+//                            'file' => $error->getFile(),
+//                            'row' => $error->getLine()
+//                        ]);
+//                    }
                 };
+
+
 
                 if ($middleware) {
                     $middlewareInstance = new $middleware();

@@ -22,21 +22,21 @@ class User extends Model {
      */
     public function register(array $insert): array {
         $this->builder->table($this->table);
+        $this->builder->returnInsert(true);
         /** @var array{status: 'success', result: mixed} | array{status: 'error', message: string} */
         return $this->builder->insert($insert);
     }
 
     /**
-     * @param string $username
-     * @param string $email
-     * @param string $password
+     * @param array{email: string, password: string, username: string} $insert
      * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
      */
-    public function create(string $username, string $email, string $password): array {
+    public function create(array $insert): array {
         $this->builder->table($this->table);
         /** @var array{status: 'success', result: mixed} | array{status: 'error', message: string} */
-        return $this->builder->insert(['username' => $username, 'email' => $email, 'password' => $password]);
+        return $this->builder->insert($insert);
     }
+
 
     /**
      * @return array<int, array<string, mixed>> The result set as an associative array
@@ -49,10 +49,10 @@ class User extends Model {
     }
 
     /**
-     * @param string $id
+     * @param int $id
      * @return array<int, array<string, mixed>> The result set as an associative array
      */
-    public function show(string $id): array {
+    public function show(int $id): array {
         $this->builder->table($this->table);
         $this->builder->columns(['id', 'username', 'email', 'created_at']);
         $this->builder->where('id', $id);
@@ -61,31 +61,25 @@ class User extends Model {
     }
 
     /**
-     * @param string $id
+     * @param int $id
      * @return array<int, array<string, mixed>> The result set as an associative array
      */
-    public function delete(string $id): array {
+    public function delete(int $id): array {
         $this->builder->table($this->table);
         $this->builder->where('id', $id);
         /** @var array<int, array{id: int, email: string, username: string, password: string}> */
         return $this->builder->delete();
     }
 
+    # @return array{status: 'success', result: string} | array{status: 'error', message: string}
     /**
-     * @param string $id
-     * @param array{email: string, password: string, username: string} $request
-     * @return array{status: 'success', result: mixed} | array{status: 'error', message: string}
+     * @param int $id
+     * @param array<'address'|'email'|'number'|'password'|'username', mixed> $update
+     * @return array{status: 'error', message: string}|array{status: 'success', result: mixed}
      */
-    public function update(string $id, array $request): array {
+    public function update(int $id, array $update): array {
         $this->builder->table($this->table);
         $this->builder->where('id', $id);
-        $columns_allowed = array_flip(['username', 'email', 'password']);
-        $update = array_intersect_key($request, $columns_allowed);
-        array_walk($update, function (&$value, $column) {
-            if ($column === 'password') {
-                $value = password_hash($value, PASSWORD_DEFAULT);
-            }
-        });
         return $this->builder->update($update);
     }
 }

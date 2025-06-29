@@ -14,9 +14,10 @@ Router::post('/register', [Login::class, 'register'], null, $args);
 /** Routes Users */
 Router::post('/user', [User::class, 'create'], AuthMiddleware::class, $args);
 Router::get('/user', [User::class, 'index'], AuthMiddleware::class, $args);
+Router::get('/user/profile', [User::class, 'profile'], AuthMiddleware::class, $args);
 Router::get('/user/{id}', [User::class, 'show'], AuthMiddleware::class, $args);
 Router::delete('/user/{id}', [User::class, 'delete'], AuthMiddleware::class, $args);
-Router::put('/user/{id}', [User::class, 'update'], AuthMiddleware::class, $args);
+Router::patch('/user/{id}', [User::class, 'update'], AuthMiddleware::class, $args);
 /** Routes Statics */
 Router::get('/example', function() {
     echo json_encode(["message" => "Hello, World!"]);

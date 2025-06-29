@@ -3,7 +3,7 @@
 namespace Database;
 
 use App\Interfaces\Database;
-use App\Helpers\ResponseHttp;
+use App\Helpers\Response;
 use PDO;
 use PDOException;
 use Exception;
@@ -18,12 +18,12 @@ class InlineSQL implements Database {
     protected array $all_conditions = [];
     /** @var array<string> $params */
     protected array $params = [];
-
-    protected ResponseHttp $ResponseHttp;
+    protected bool $returnInsert = false;
+    protected Response $ResponseHttp;
     protected PDO $pdo;
 
     public function __construct() {
-        $this->ResponseHttp = new ResponseHttp();
+        $this->ResponseHttp = new Response();
         $this->connect();
     }
 
@@ -62,12 +62,17 @@ class InlineSQL implements Database {
         return $this;
     }
 
+    public function returnInsert(bool $self): self {
+        $this->returnInsert = $self;
+        return $this;
+    }
+
     public function columns(array $columns): self {
         $this->columns = implode(", ", array_map('trim', $columns));
         return $this;
     }
 
-    public function where(string $field, string $value, string $operator = '='): self {
+    public function where(string $field, string|int $value, string $operator = '='): self {
         $this->all_conditions[] = [
             "type" => "AND",
             "condition" => $this->prepareCondition($field, $value, $operator),
@@ -75,7 +80,7 @@ class InlineSQL implements Database {
         return $this;
     }
 
-    public function orWhere(string $field, string $value, string $operator = '='): self {
+    public function orWhere(string $field, string|int $value, string $operator = '='): self {
         $this->all_conditions[] = [
             "type" => "OR",
             "condition" => $this->prepareCondition($field, $value, $operator),
@@ -121,7 +126,11 @@ class InlineSQL implements Database {
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($this->params);
-            return ['status' => 'success', 'result' => 'OK'];
+            $result = $stmt->rowCount();
+            if ($result > 0) {
+                return ['status' => 'success', 'result' => true];
+            }
+            return ['status' => 'error', 'result' => false];
         } catch (PDOException $error) {
             if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) return ['status' => 'error', 'message' => $error->getMessage()];
             return ['status' => 'error', 'message' => 'Failed to fetch data:'];
@@ -157,11 +166,9 @@ class InlineSQL implements Database {
             $stmt->execute($this->params);
             /** @var array<int, array<string, mixed>> $result */
             $result = (array) $stmt->$config_search($config_param);
-            #TODO redo check
-//            if(isset($result[0]) AND $result[0] === false) {
-//                return ['status' => 'error', 'result' => false];
-//            }
-
+            if(isset($result[0]) AND $result[0] === false) {
+                return ['status' => 'error', 'message' => 'not_found'];
+            }
             return ['status' => 'success', 'result' => $result];
         } catch (PDOException $error) {
             if (($_ENV['APP_ENV'] == 'development') AND ($_ENV['APP_DEBUG'] == 'True')) return ['status' => 'error', 'message' => $error->getMessage()];
@@ -181,13 +188,23 @@ class InlineSQL implements Database {
         $now = date('Y-m-d H:i:s');
 
         $values = implode(', ', $values);
-        # RETURNING id postgre
-        # $lastId = $pdo->lastInsertId(); mysql
+        # RETURNING id postgres
+        #
+
         $sql = "INSERT INTO {$this->table} ({$columns}, created_at) VALUES ({$values}, '{$now}');";
         try {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+//            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $result = true;
+            if ($this->returnInsert === true) {
+                $lastId = $this->pdo->lastInsertId();
+                $select = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
+                $select->execute([$lastId]);
+                $result = $select->fetch(PDO::FETCH_ASSOC);
+            }
+
             return ['status' => 'success', 'result' => $result];
         } catch (PDOException $error) {
             if ($_ENV['APP_ENV'] === 'development' && $_ENV['APP_DEBUG'] === 'True') {
@@ -225,7 +242,7 @@ class InlineSQL implements Database {
             $stmt->execute();
             $result = $stmt->rowCount();
 
-            if ($result > 0) {
+            if ($result > 0 AND $this->table == 'accounts') {
                 $update_at = "updated_at = :set_updated_at";
                 $stmt_update_at = $this->pdo->prepare("UPDATE {$this->table} SET {$update_at} {$this->where_clause};");
                 $stmt_update_at->bindValue('set_updated_at', date('Y-m-d H:i:s'));
@@ -234,8 +251,11 @@ class InlineSQL implements Database {
                 }
                 $stmt_update_at->execute();
             }
+            if ($stmt->rowCount() === 0) {
+                return ['status' => 'error', 'message' => 'updated'];
+            }
 
-            return ['status' => 'success', 'result' => $stmt->rowCount()];
+            return ['status' => 'success', 'result' => "true"];
         } catch (PDOException $error) {
             if ($_ENV['APP_ENV'] === 'development' && $_ENV['APP_DEBUG'] === 'True') {
                 return ['status' => 'error', 'message' => $error->getMessage()];

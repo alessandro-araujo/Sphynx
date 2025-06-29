@@ -8,6 +8,7 @@ final class JWT {
      * @return string
      */
     public static function create(array $login): string {
+
         $jwt = new JWTHandler();
         $payload = [
             'sub' => $login['id'],
