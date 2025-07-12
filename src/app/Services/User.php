@@ -35,7 +35,7 @@ final readonly class User {
     /**
      * @param UserUpdateDTO $user_object
      * @param int $id
-     * @return array{status: 'success', result: string} | array{status: 'error', message: string}
+     * @return array{status: 'error', message: string}|array{status: 'success', result: mixed}
      */
     public function update(UserUpdateDTO $user_object, int $id): array {
         if (isset($user_object->password)) {
@@ -51,9 +51,10 @@ final readonly class User {
     private function hashPassword(string $password): string {
         return password_hash($password, PASSWORD_DEFAULT);
     }
+
     /**
      * @param UserAuthDTO $user_object
-     * @return array<int, array{id: int, email: string, username: string, password: string}>
+     * @return array<int, array<string, mixed>>
      */
     public function login(UserAuthDTO $user_object): array {
         $login = UserMapper::login($user_object);
@@ -62,13 +63,25 @@ final readonly class User {
 
 
     /**
-     * @return array{status: string, message?: string}
+     * @return array<int, array<string, mixed>>
      */
     public function profile(): array {
         $token = Token::get();
-        $parts = explode('.', $token);
-        if (count($parts) !== 3) return [];
-        $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
-        return $this->user_model->show((int)$payload['sub']);
+        $parts = explode('.', (string)$token);
+
+        if (count($parts) !== 3) {
+            #TODO Implements Result::Auth or AuthToken
+            print("error");
+            // $http_code = 500;
+            // $response = [
+            //    'status' => $http_code,
+            //    # 'message' => self::$lang->get("error.auth")['error'],
+            //];
+            # self::$http->response($response, $http_code);
+        }
+        /** @var array{sub: int|string} $payload */
+        $payload  = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+        $user_id = (int)$payload['sub'];
+        return $this->user_model->show($user_id);
     }
 }

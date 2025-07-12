@@ -12,19 +12,19 @@ $args = ['connection' => $connection_database];
 Router::post('/login', [Login::class, 'login'], null, $args);
 Router::post('/register', [Login::class, 'register'], null, $args);
 /** Routes Users */
-Router::post('/user', [User::class, 'create'], AuthMiddleware::class, $args);
-Router::get('/user', [User::class, 'index'], AuthMiddleware::class, $args);
-Router::get('/user/profile', [User::class, 'profile'], AuthMiddleware::class, $args);
-Router::get('/user/{id}', [User::class, 'show'], AuthMiddleware::class, $args);
-Router::delete('/user/{id}', [User::class, 'delete'], AuthMiddleware::class, $args);
-Router::patch('/user/{id}', [User::class, 'update'], AuthMiddleware::class, $args);
+Router::post('/users', [User::class, 'create'], AuthMiddleware::class, $args);
+Router::get('/users', [User::class, 'index'], AuthMiddleware::class, $args);
+Router::get('/users/profile', [User::class, 'profile'], AuthMiddleware::class, $args);
+Router::get('/users/{id}', [User::class, 'show'], AuthMiddleware::class, $args);
+Router::delete('/users/{id}', [User::class, 'delete'], AuthMiddleware::class, $args);
+Router::patch('/users/{id}', [User::class, 'update'], AuthMiddleware::class, $args);
 /** Routes Statics */
-Router::get('/example', function() {
-    echo json_encode(["message" => "Hello, World!"]);
-});
-Router::get('/example/{name}', function(string $name)  {
-    echo json_encode(["message" => "Hello, $name"]);
-});
-Router::post('/example', function(array $data) {
-    echo json_encode(["message" => "Example created successfully", "data" => $data]);
-});
+Router::get('/examples', function() {
+    echo json_encode(["status" => 200, "message" => "Hello, World!"]);
+}, AuthMiddleware::class);
+Router::get('/examples/{name}', function(string $name)  {
+    echo json_encode(["status" => 200, "message" => "Hello, $name"]);
+}, AuthMiddleware::class);
+Router::post('/examples', function(array $data) {
+    echo json_encode(["status" => 200, "message" => "Example created successfully", "data" => $data]);
+}, AuthMiddleware::class);

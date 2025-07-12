@@ -1,6 +1,6 @@
 {
     "name": "vendor/api",
-    "description": "Framework for building RESTful APIs",
+    "description": "Framework for building RESTFull APIs",
     "type": "api-rest-full",
     "require": {
         "php": "^8.3",

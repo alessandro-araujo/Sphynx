@@ -154,18 +154,7 @@ class Router {
                             'row' => $error->getLine()
                         ]);
                     }
-//                    catch (Throwable $error) {
-//                        http_response_code(500);
-//                        echo json_encode([
-//                            'error' => $this->lang->get('error.type_error.parameters')['error'],
-//                            'message' => $error->getMessage(),
-//                            'file' => $error->getFile(),
-//                            'row' => $error->getLine()
-//                        ]);
-//                    }
                 };
-
-
 
                 if ($middleware) {
                     $middlewareInstance = new $middleware();
@@ -183,6 +172,6 @@ class Router {
 
     private function sendNotFound(): void {
         http_response_code(404);
-        echo json_encode(["error" => "Route not found"]);
+        echo json_encode(["message" => "Route not found"]);
     }
 }

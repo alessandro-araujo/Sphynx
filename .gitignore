@@ -1,7 +1,9 @@
 .gitignore
 .env
+.phpunit.result.cache
 /public/storage/uploads/
 /public/storage/logs/app.log
+/ext
 /vendor
 /.vscode
 /.idea
