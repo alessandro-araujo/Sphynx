@@ -16,14 +16,14 @@ class AuthMiddleware {
         $headers = getallheaders();
         if (empty($headers['Authorization'])) {
             http_response_code(401);
-            echo json_encode(['error' => 'Token não informado']);
+            echo json_encode(['status' => 401, 'message' => 'Token não informado']);
             exit;
         }
         $authHeader = $headers['Authorization'];
 
         if (!is_string($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
             http_response_code(401);
-            echo json_encode(['error' => 'Token não informado']);
+            echo json_encode(['status' => 401, 'message' => 'Token não informado']);
             exit;
         }
 
@@ -35,7 +35,10 @@ class AuthMiddleware {
             return $next($dados);
         } catch (Exception $e) {
             http_response_code(401);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode([
+                'status' => 401,
+                'message' => $e->getMessage()
+            ]);
             exit;
         }
     }

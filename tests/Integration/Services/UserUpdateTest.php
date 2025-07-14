@@ -22,7 +22,7 @@ class UserUpdateTest extends TestCase {
         # What the model should return in the mock
         $expected = [
             'status' => 'success',
-            'result' => true
+            'result' => 'true'
         ];
 
         $mockModel = $this->createMock(UserModel::class);
